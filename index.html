@@ -1074,20 +1074,29 @@ async function sendMessage() {
       })
     });
 
-    const data = await response.json();
-    removeThinking();
-
-    if (data.content && data.content[0]) {
-      const reply = data.content[0].text;
-      conversationHistory.push({ role: 'assistant', content: reply });
-      addMessage('ai', reply, mode, modeClass);
-    } else {
-      const errMsg = data.error?.message || 'Server error. Try again.';
+    if (!response.ok) {
+      removeThinking();
+      let errMsg = 'Server error. Try again.';
+      try {
+        const errData = await response.json();
+        errMsg = errData.error?.message || errMsg;
+      } catch {}
       addMessage('ai', '⚠️ ' + errMsg, null, null);
+    } else {
+      const data = await response.json();
+      removeThinking();
+
+      if (data.content && data.content[0]) {
+        const reply = data.content[0].text;
+        conversationHistory.push({ role: 'assistant', content: reply });
+        addMessage('ai', reply, mode, modeClass);
+      } else {
+        addMessage('ai', '⚠️ Unexpected response format. Try again.', null, null);
+      }
     }
   } catch (err) {
     removeThinking();
-    addMessage('ai', 'Connection error. Check internet and try again.', null, null);
+    addMessage('ai', '⚠️ Connection error. Check your internet and try again.', null, null);
   }
 
   isThinking = false;
