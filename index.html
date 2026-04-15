@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AppSensei — Android Empire Intelligence</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #080808;
+    --bg2: #0f0f0f;
+    --bg3: #161616;
+    --border: #222;
+    --accent: #00ff88;
+    --accent2: #ff3c3c;
+    --accent3: #ffd700;
+    --text: #e8e8e8;
+    --muted: #555;
+    --muted2: #333;
+    --user-bg: #0a1a10;
+    --ai-bg: #0f0f0f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .logo-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,255,136,0.15), transparent);
+  }
+
+  .logo-icon svg { position: relative; z-index: 1; }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 0.05em;
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  .logo-sub {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .status-dot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .stage-badge {
+    font-size: 9px;
+    padding: 3px 8px;
+    border: 1px solid var(--muted2);
+    border-radius: 2px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .stage-badge:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    background: var(--bg);
+  }
+
+  .sidebar-section {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-label {
+    font-size: 8px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .quick-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 4px;
+    letter-spacing: 0.03em;
+    line-height: 1.4;
+  }
+
+  .quick-btn:hover {
+    border-color: var(--border);
+    color: var(--text);
+    background: var(--bg3);
+  }
+
+  .quick-btn .btn-icon {
+    display: block;
+    font-size: 8px;
+    color: var(--muted);
+    margin-bottom: 2px;
+    letter-spacing: 0.15em;
+  }
+
+  /* RADAR */
+  .radar-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--muted2);
+    font-size: 9px;
+    line-height: 1.4;
+  }
+
+  .radar-item:last-child { border-bottom: none; }
+
+  .radar-signal {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .radar-text { color: var(--muted); }
+  .radar-text strong { color: var(--text); display: block; margin-bottom: 1px; }
+
+  /* CHAT AREA */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    scroll-behavior: smooth;
+  }
+
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 2px; }
+
+  /* WELCOME */
+  .welcome {
+    margin: auto;
+    text-align: center;
+    max-width: 480px;
+    padding: 40px 20px;
+    animation: fadeIn 0.6s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .welcome-icon {
+    width: 60px;
+    height: 60px;
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,255,136,0.05);
+    position: relative;
+  }
+
+  .welcome-icon::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 1px solid rgba(0,255,136,0.15);
+    border-radius: 12px;
+  }
+
+  .welcome h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .welcome h1 span { color: var(--accent); }
+
+  .welcome p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 28px;
+    letter-spacing: 0.02em;
+  }
+
+  .welcome-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .chip {
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    background: var(--bg2);
+  }
+
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,255,136,0.04);
+  }
+
+  /* MESSAGE BUBBLES */
+  .msg {
+    display: flex;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    animation: msgIn 0.25s ease;
+  }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg:last-child { border-bottom: none; }
+
+  .msg-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+
+  .msg.user .msg-avatar {
+    background: var(--user-bg);
+    border: 1px solid rgba(0,255,136,0.2);
+    color: var(--accent);
+  }
+
+  .msg.ai .msg-avatar {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .msg-content { flex: 1; min-width: 0; }
+
+  .msg-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .msg-name {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .msg.user .msg-name { color: var(--accent); }
+  .msg.ai .msg-name { color: var(--muted); }
+
+  .msg-mode {
+    font-size: 8px;
+    padding: 2px 6px;
+    border-radius: 2px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .mode-oracle { background: rgba(255,215,0,0.1); color: var(--accent3); border: 1px solid rgba(255,215,0,0.2); }
+  .mode-architect { background: rgba(0,255,136,0.08); color: var(--accent); border: 1px solid rgba(0,255,136,0.2); }
+  .mode-navigator { background: rgba(255,60,60,0.1); color: var(--accent2); border: 1px solid rgba(255,60,60,0.2); }
+  .mode-verdict { background: rgba(180,100,255,0.1); color: #b464ff; border: 1px solid rgba(180,100,255,0.2); }
+  .mode-autopsy { background: rgba(255,140,0,0.1); color: #ff8c00; border: 1px solid rgba(255,140,0,0.2); }
+  .mode-revenue { background: rgba(0,200,255,0.1); color: #00c8ff; border: 1px solid rgba(0,200,255,0.2); }
+
+  .msg-time {
+    font-size: 8px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .msg-text {
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .msg-text strong { color: var(--accent); font-weight: 700; }
+  .msg-text em { color: var(--accent3); font-style: normal; }
+
+  /* Markdown-like rendering */
+  .msg-text .md-h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+    margin: 14px 0 8px;
+    letter-spacing: 0.03em;
+  }
+
+  .msg-text .md-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 10px;
+  }
+
+  .msg-text .md-table th {
+    text-align: left;
+    padding: 5px 10px;
+    background: var(--bg3);
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 9px;
+    border: 1px solid var(--border);
+  }
+
+  .msg-text .md-table td {
+    padding: 6px 10px;
+    border: 1px solid var(--muted2);
+    color: var(--text);
+    line-height: 1.5;
+    vertical-align: top;
+  }
+
+  .msg-text .md-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .msg-text .score-bar {
+    display: inline-block;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin-left: 6px;
+    vertical-align: middle;
+    opacity: 0.7;
+  }
+
+  .msg-text .flag-genesis {
+    display: inline-block;
+    background: rgba(255,60,60,0.1);
+    border: 1px solid rgba(255,60,60,0.3);
+    border-radius: 2px;
+    padding: 2px 6px;
+    font-size: 9px;
+    color: var(--accent2);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .msg-text .time-tag {
+    display: inline-block;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1px 5px;
+    font-size: 9px;
+    color: var(--muted);
+  }
+
+  /* THINKING INDICATOR */
+  .thinking {
+    display: flex;
+    gap: 14px;
+    padding: 16px 0;
+    animation: msgIn 0.25s ease;
+  }
+
+  .thinking-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 3px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+
+  .thinking-dots {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding-top: 8px;
+  }
+
+  .thinking-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: dotBounce 1.2s ease-in-out infinite;
+  }
+
+  .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+  .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes dotBounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* INPUT AREA */
+  .input-area {
+    padding: 16px 24px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .input-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 14px;
+    transition: border-color 0.2s;
+  }
+
+  .input-wrapper:focus-within {
+    border-color: rgba(0,255,136,0.3);
+  }
+
+  textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    resize: none;
+    min-height: 22px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  textarea::placeholder { color: var(--muted); }
+
+  textarea::-webkit-scrollbar { width: 3px; }
+  textarea::-webkit-scrollbar-thumb { background: var(--muted2); }
+
+  .send-btn {
+    width: 34px;
+    height: 34px;
+    background: var(--accent);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .send-btn:hover { background: #00e67a; transform: scale(1.05); }
+  .send-btn:disabled { background: var(--muted2); cursor: not-allowed; transform: none; }
+
+  .send-btn svg { color: var(--bg); }
+
+  .input-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 0 2px;
+  }
+
+  .input-hint {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .input-hint span { color: var(--muted2); }
+
+  .char-count {
+    font-size: 9px;
+    color: var(--muted);
+  }
+
+  /* SCROLL TO BOTTOM */
+  .scroll-btn {
+    position: absolute;
+    bottom: 90px;
+    right: 24px;
+    width: 32px;
+    height: 32px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 5;
+  }
+
+  .scroll-btn:hover { border-color: var(--accent); }
+  .scroll-btn.visible { display: flex; }
+
+  /* MOBILE */
+  @media (max-width: 700px) {
+    .sidebar { display: none; }
+    .messages { padding: 16px; }
+    .input-area { padding: 12px 16px 16px; }
+    header { padding: 10px 16px; }
+    .status-bar { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="2" width="6" height="6" fill="#00ff88"/>
+        <rect x="10" y="2" width="6" height="6" fill="#00ff88" opacity="0.5"/>
+        <rect x="2" y="10" width="6" height="6" fill="#00ff88" opacity="0.5"/>
+        <rect x="10" y="10" width="6" height="6" fill="#00ff88" opacity="0.3"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">App<span>Sensei</span></div>
+      <div class="logo-sub">Android Empire Intelligence · 24/7</div>
+    </div>
+  </div>
+  <div class="status-bar">
+    <div class="status-dot">
+      <div class="dot"></div>
+      LIVE 24/7
+    </div>
+    <div class="stage-badge" id="stageBadge" onclick="cycleStage()">BUILDER</div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Modes</div>
+      <button class="quick-btn" onclick="insertPrompt('Give me an app idea for the Indian market')">
+        <span class="btn-icon">ORACLE</span>
+        App idea generator
+      </button>
+      <button class="quick-btn" onclick="insertPrompt('Help me build a ')">
+        <span class="btn-icon">ARCHITECT</span>
+        Build plan
+      </button>
+      <button class="quick-btn" onclick="insertPrompt('Is this idea good? ')">
+        <span class="btn-icon">VERDICT</span>
+        Score my idea
+      </button>
+      <button class="quick-btn" onclick="insertPrompt('My app isn\'t growing. Help me diagnose it.')">
+        <span class="btn-icon">AUTOPSY</span>
+        Diagnose my app
+      </button>
+      <button class="quick-btn" onclick="insertPrompt('How do I monetize my app?')">
+        <span class="btn-icon">REVENUE</span>
+        Monetization plan
+      </button>
+      <button class="quick-btn" onclick="insertPrompt('I\'m stuck and overwhelmed. Help.')">
+        <span class="btn-icon">NAVIGATOR</span>
+        I\'m stuck
+      </button>
+    </div>
+
+    <div class="sidebar-section" style="flex:1; overflow-y:auto;">
+      <div class="sidebar-label">🇮🇳 Live Niche Radar</div>
+      <div class="radar-item">
+        <span class="radar-signal">🟢</span>
+        <div class="radar-text">
+          <strong>Telugu Habit Tracker</strong>
+          0 dominant apps · Act now
+        </div>
+      </div>
+      <div class="radar-item">
+        <span class="radar-signal">🟢</span>
+        <div class="radar-text">
+          <strong>UPI Expense Tracker</strong>
+          Hindi UI · Poor incumbents
+        </div>
+      </div>
+      <div class="radar-item">
+        <span class="radar-signal">🟡</span>
+        <div class="radar-text">
+          <strong>State Exam Prep</strong>
+          Non-IIT/IAS · 3–6 months
+        </div>
+      </div>
+      <div class="radar-item">
+        <span class="radar-signal">🟡</span>
+        <div class="radar-text">
+          <strong>Vernacular AI Writer</strong>
+          Early signal · 6–12 months
+        </div>
+      </div>
+      <div class="radar-item">
+        <span class="radar-signal">🟠</span>
+        <div class="radar-text">
+          <strong>Rural Agri Tracker</strong>
+          Emerging · Monitor
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Laws Active</div>
+      <div style="font-size:9px; color: var(--muted); line-height:1.8;">
+        L1 Market Oracle First<br>
+        L3 $0→$1 Sacred Sprint<br>
+        L7 Retention = Product<br>
+        <span style="color:var(--muted2)">+ 4 more always active</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect x="4" y="4" width="8" height="8" fill="#00ff88"/>
+            <rect x="16" y="4" width="8" height="8" fill="#00ff88" opacity="0.5"/>
+            <rect x="4" y="16" width="8" height="8" fill="#00ff88" opacity="0.5"/>
+            <rect x="16" y="16" width="8" height="8" fill="#00ff88" opacity="0.3"/>
+          </svg>
+        </div>
+        <h1>App<span>Sensei</span></h1>
+        <p>Your Android empire intelligence.<br>Ship faster. Earn smarter. Compound harder.<br>Running 24/7. Ask anything.</p>
+        <div class="welcome-chips">
+          <div class="chip" onclick="insertPrompt('Give me 3 app ideas for India right now')">App Ideas 🇮🇳</div>
+          <div class="chip" onclick="insertPrompt('Score my idea: a Telugu language habit tracker app')">Score My Idea</div>
+          <div class="chip" onclick="insertPrompt('What are the best monetization options for a free Android app?')">Monetize</div>
+          <div class="chip" onclick="insertPrompt('Build plan for a UPI expense tracker app')">Build Plan</div>
+          <div class="chip" onclick="insertPrompt('My app has 500 downloads and 0 revenue. Help.')">Fix My App</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="scroll-btn" id="scrollBtn" onclick="scrollToBottom()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#888" stroke-width="2">
+        <path d="M2 5l5 5 5-5"/>
+      </svg>
+    </button>
+
+    <div class="input-area">
+      <div class="input-wrapper">
+        <textarea
+          id="input"
+          placeholder="Ask AppSensei anything about your Android app..."
+          rows="1"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this); updateCharCount(this)"
+        ></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 1L1 5.5l5 2 2 5L13 1z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="input-footer">
+        <div class="input-hint">Enter to send · <span>Shift+Enter</span> for new line</div>
+        <div class="char-count" id="charCount">0</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DROIDX_SYSTEM = `You are DROID-X GHOST — a one-person Android app empire intelligence running 24/7. You are the entire founding team compressed into one decision loop.
+
+IDENTITY: You are DROID-X GHOST v9.0. The most powerful version. The one that disappears into the background and lets outcomes speak. You never describe your own processes. You never announce modes, layers, or protocols. You just deliver the right answer.
+
+STAGE CALIBRATION (silent):
+- Detect user stage from context: BUILDER (₹0 revenue, no apps, or not shipped in 90+ days), OPERATOR (1-3 apps + some revenue), ARCHITECT (4+ apps + ₹10K+/mo)
+- Revenue = ₹0 always means BUILDER regardless of app count
+- Detect emotional state: Confident → full advice. Uncertain → reduce options, increase certainty. Distressed → stabilize first, one action only.
+- Detect momentum: HIGH (shipping, action questions) → compress, bias action. LOW (repeated validation questions, nothing shipped) → interrupt loop, force ship decision.
+
+7 MASTER LAWS (always active, never announced):
+L1: Market Oracle First — Sensor Tower data before any design or build decision. Validate: search volume + YoY trend + competitor revenue + keyword difficulty. Weak signal = pivot.
+L2: Monetization is the Foundation — Revenue architecture Day 0. Sequence: Day 1 AdMob dormant → 100 DAU AdMob live → 200 DL premium unlock CVR test → CVR≥3% subscription introduced → 500 DAU subscription = primary upsell.
+L3: $0→$1 Sacred Sprint — Every pre-revenue decision filtered: does this get me closer to $1?
+L4: Portfolio Over Hero App — Ten ₹8K/mo apps > one ₹80K/mo. Risk-adjusted always wins.
+L5: Exploit the Ignored — Tier-2 country voids, non-English gaps, underserved demographics, micro-seasonal niches, 1-star review patterns.
+L6: Ship Ugly, Systematize — MVP = 1 action + 1 flow + 1 monetization hook. Post-launch audit every time.
+L7: Retention is the Product — 2 psychological triggers before launch. Streak/Save State/Personalization/Social Proof/Loss Aversion. Hook works first, UI after.
+
+TOOLCHAIN (recommend when relevant, never list exhaustively):
+Figma (design), Stitch (no-code MVP ≤48hrs), Sensor Tower (market intel), Cursor/Windsurf/Antigravity (AI coding), Supabase (relational backend), Firebase (real-time/push/ML), AdMob (ads), Play Store ($25 lifetime), Razorpay (₹ payments), Brevo/OneSignal (retention comms).
+Supabase vs Firebase: Supabase = structured data + auth. Firebase = real-time + push + ML. Both = hybrid.
+Pre-$25 validation: landing page + 10 real people + 1 pays intent → then buy Play Store account.
+
+INDIA MARKET (auto-apply, never announce):
+Pricing: ₹49/₹99/₹299/₹599. Test ₹99 first. Never mirror USD.
+Payment: Razorpay + UPI first.
+Language: Hindi/Telugu/Tamil/Marathi/Bengali = separate ASO universes.
+Tier-2: APK <20MB, offline-first, simple UI, low data.
+Seasonal windows: Diwali/IPL/Exam Season/Wedding Season.
+Device: Android Go compatible, test on 3GB RAM.
+Best demographic: Hindi, 25-40, tier-2 city, working professional, UPI-ready.
+HOT niches right now: Telugu habit tracker (0 dominant apps), UPI expense tracker with Hindi UI (poor UX incumbents), State exam prep non-IIT/IAS.
+
+SCORING (when evaluating ideas, show this):
+Score on: Monetization Clarity (25%), Search Demand (20%), Competition Weakness (15%), D30 Retention Potential (15%), Unfair Advantage (15%), Build Speed (10%).
+Monetization Veto: if Monetization Clarity <5/10, cap total at 5.9.
+Momentum Discount: if user momentum is LOW, subtract 0.5.
+Verdicts: ≥7.5 BUILD NOW ⏱Today | 6.0-7.4 MODIFY THEN BUILD ⏱48hr | 4.5-5.9 VALIDATE FIRST ⏱48hr listing | 3.0-4.4 STRIP AND REFRAME | <3.0 HARD KILL + better option.
+Idea Aging: if same idea discussed >2 sessions without decision, close deliberation with a verdict.
+
+JUDGMENT LAYER (silent, always running):
+Before responding: What is the user actually trying to achieve? What decision are they about to make that I should redirect? What aren't they asking that they should be? What is the single highest-leverage move?
+Surface the reframed answer, not the detection process.
+
+RESPONSE MODES (detect by intent, never announce unless orienting a lost user):
+ORACLE: 3 app ideas scored, 1 winner with full reasoning.
+ARCHITECT: Full build plan — market → money → build → launch → risks → portfolio → lifecycle.
+AUTOPSY: Retention + ASO + monetization gap diagnosis with fix sequence.
+REVENUE: All monetization models ranked with 12-month projections.
+VERDICT: Score the idea using the matrix above.
+NAVIGATOR: When distressed/overwhelmed → 3 steps only: (1) name the single bottleneck, (2) one sentence, (3) one action time-tagged. Stop. Wait.
+
+PROACTIVE FLAGS (weave into answer, don't label):
+- Feature creep → cut scope before proceeding
+- Competitor mentioned but unanalyzed → add mining step
+- Scaling before ₹1 → correct the sequence
+- Distress detected → stabilize first
+- Decision loop → close it with a verdict
+
+OUTPUT RULES:
+- Structure: Market reality → Revenue architecture → Build sequence → Launch → Risks → Portfolio fit → Lifecycle
+- Use tables for comparisons and data. Use bullet points for lists. Bold for key terms.
+- Every recommendation gets a time tag: ⏱ 2 hours / ⏱ 1 day / ⏱ 1 week
+- QUICK responses (validation): market signal + score + one recommendation
+- STANDARD responses (build planning): full flow minus lifecycle
+- FULL responses (empire decisions): everything
+- Offer upgrade only when user signals they want more — one line at end
+- Never describe what you're doing. Do it.
+- Never say "As DROID-X..." or reference your own system. Just answer.
+- Every sentence load-bearing. Ornament deleted.
+- Calm. Surgical. Zero hedging. Co-founder energy, not consultant energy.
+- Bad ideas killed immediately. Better alternative same breath.
+- One action at a time for BUILDER stage users.
+- India context applied automatically to every relevant recommendation.`;
+
+let conversationHistory = [];
+let isThinking = false;
+const stages = ['BUILDER', 'OPERATOR', 'ARCHITECT'];
+let stageIndex = 0;
+
+function cycleStage() {
+  stageIndex = (stageIndex + 1) % stages.length;
+  document.getElementById('stageBadge').textContent = stages[stageIndex];
+}
+
+function insertPrompt(text) {
+  const input = document.getElementById('input');
+  input.value = text;
+  input.focus();
+  autoResize(input);
+  updateCharCount(input);
+  // Move cursor to end
+  input.setSelectionRange(text.length, text.length);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function updateCharCount(el) {
+  document.getElementById('charCount').textContent = el.value.length;
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function scrollToBottom() {
+  const msgs = document.getElementById('messages');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function getTime() {
+  return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+}
+
+function detectMode(text) {
+  const t = text.toLowerCase();
+  if (t.includes('idea') || t.includes('what should i build') || t.includes('oracle')) return ['ORACLE', 'mode-oracle'];
+  if (t.includes('build') || t.includes('architect') || t.includes('plan')) return ['ARCHITECT', 'mode-architect'];
+  if (t.includes('stuck') || t.includes('overwhelmed') || t.includes('help') || t.includes('lost')) return ['NAVIGATOR', 'mode-navigator'];
+  if (t.includes('good') || t.includes('score') || t.includes('verdict') || t.includes('idea is')) return ['VERDICT', 'mode-verdict'];
+  if (t.includes('growing') || t.includes('downloads') || t.includes('diagnose') || t.includes('autopsy')) return ['AUTOPSY', 'mode-autopsy'];
+  if (t.includes('monetize') || t.includes('revenue') || t.includes('money') || t.includes('earn')) return ['REVENUE', 'mode-revenue'];
+  return [null, null];
+}
+
+function renderText(text) {
+  // Convert markdown-like syntax to HTML
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // Headers
+  html = html.replace(/^## (.+)$/gm, '<div class="md-h2">$1</div>');
+  html = html.replace(/^### (.+)$/gm, '<div class="md-h2" style="font-size:12px;border-color:transparent;">$1</div>');
+
+  // Bold
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  // Time tags
+  html = html.replace(/⏱\s*([^\n<]+)/g, '<span class="time-tag">⏱ $1</span>');
+
+  // Genesis/flags
+  html = html.replace(/\[GENESIS FLAG[^\]]*\]/gi, '<span class="flag-genesis">GENESIS FLAG</span>');
+
+  // Tables (simple)
+  const tableRegex = /(\|.+\|\n)+/g;
+  html = html.replace(tableRegex, (match) => {
+    const rows = match.trim().split('\n').filter(r => r.trim() && !r.match(/^\|[\s\-|]+\|$/));
+    if (rows.length < 2) return match;
+    let table = '<table class="md-table">';
+    rows.forEach((row, i) => {
+      const cells = row.split('|').filter((_, ci) => ci > 0 && ci < row.split('|').length - 1);
+      if (i === 0) {
+        table += '<tr>' + cells.map(c => `<th>${c.trim()}</th>`).join('') + '</tr>';
+      } else {
+        table += '<tr>' + cells.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
+      }
+    });
+    table += '</table>';
+    return table;
+  });
+
+  return html;
+}
+
+function addMessage(role, text, mode, modeClass) {
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  const avatarText = role === 'user' ? 'YOU' : 'AS';
+  const name = role === 'user' ? 'YOU' : 'APPSENSEI';
+
+  let modeHtml = '';
+  if (mode && role === 'ai') {
+    modeHtml = `<span class="msg-mode ${modeClass}">${mode}</span>`;
+  }
+
+  div.innerHTML = `
+    <div class="msg-avatar">${avatarText}</div>
+    <div class="msg-content">
+      <div class="msg-header">
+        <span class="msg-name">${name}</span>
+        ${modeHtml}
+        <span class="msg-time">${getTime()}</span>
+      </div>
+      <div class="msg-text">${renderText(text)}</div>
+    </div>
+  `;
+
+  msgs.appendChild(div);
+  scrollToBottom();
+}
+
+function showThinking() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'thinking';
+  div.id = 'thinking';
+  div.innerHTML = `
+    <div class="thinking-avatar">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <rect x="1" y="1" width="4" height="4" fill="#555"/>
+        <rect x="7" y="1" width="4" height="4" fill="#333"/>
+        <rect x="1" y="7" width="4" height="4" fill="#333"/>
+        <rect x="7" y="7" width="4" height="4" fill="#222"/>
+      </svg>
+    </div>
+    <div class="thinking-dots">
+      <div class="thinking-dot"></div>
+      <div class="thinking-dot"></div>
+      <div class="thinking-dot"></div>
+    </div>
+  `;
+  msgs.appendChild(div);
+  scrollToBottom();
+}
+
+function removeThinking() {
+  const t = document.getElementById('thinking');
+  if (t) t.remove();
+}
+
+async function sendMessage() {
+  if (isThinking) return;
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Add user message
+  addMessage('user', text, null, null);
+  conversationHistory.push({ role: 'user', content: text });
+
+  // Clear input
+  input.value = '';
+  autoResize(input);
+  updateCharCount(input);
+
+  // Detect mode for badge
+  const [mode, modeClass] = detectMode(text);
+
+  // Show thinking
+  isThinking = true;
+  document.getElementById('sendBtn').disabled = true;
+  showThinking();
+
+  try {
+    // Secure proxy — API key never exposed to browser
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: DROIDX_SYSTEM,
+        messages: conversationHistory
+      })
+    });
+
+    const data = await response.json();
+    removeThinking();
+
+    if (data.content && data.content[0]) {
+      const reply = data.content[0].text;
+      conversationHistory.push({ role: 'assistant', content: reply });
+      addMessage('ai', reply, mode, modeClass);
+    } else {
+      const errMsg = data.error?.message || 'Server error. Try again.';
+      addMessage('ai', '⚠️ ' + errMsg, null, null);
+    }
+  } catch (err) {
+    removeThinking();
+    addMessage('ai', 'Connection error. Check internet and try again.', null, null);
+  }
+
+  isThinking = false;
+  document.getElementById('sendBtn').disabled = false;
+  input.focus();
+}
+
+// Scroll detection for scroll-to-bottom button
+const msgs = document.getElementById('messages');
+msgs.addEventListener('scroll', () => {
+  const btn = document.getElementById('scrollBtn');
+  const atBottom = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 80;
+  btn.classList.toggle('visible', !atBottom);
+});
+
+// Auto-focus input
+document.getElementById('input').focus();
+</script>
+</body>
+</html>
